@@ -4,7 +4,7 @@
 # model parameters ####
 rows <- 50 
 cols <- 50
-proportion.group.1 <- .4 # proportion of red agents
+proportion.group.red <- .4 # proportion of red agents
 empty <- .2 # proportion of grid that will be empty space
 min.similarity.red <- 3/8 # minimum proportion of neighbors that are the same type to not move
 min.similarity.blue <- 3/8 
@@ -14,14 +14,14 @@ min.similarity.blue <- 3/8
 # values in the matrix are either 0, 1, or 2
 # if 0, the space is empty
 # 1 and 2 represent the two different groups
-create.grid <- function(rows, cols, proportion.group.1, empty){
-  pop.size.group.1 <- (rows*cols)*(1-empty)*proportion.group.1
-  pop.size.group.2 <- (rows*cols)*(1-empty)*(1-proportion.group.1)
+create.grid <- function(rows, cols, proportion.group.red, empty){
+  pop.size.group.red <- (rows*cols)*(1-empty)*proportion.group.red
+  pop.size.group.blue <- (rows*cols)*(1-empty)*(1-proportion.group.red)
   
   initial.population <- sample(c(
-    rep(1, pop.size.group.1), 
-    rep(2, pop.size.group.2), 
-    rep(0, (rows*cols)-pop.size.group.1-pop.size.group.2)
+    rep(1, pop.size.group.red), 
+    rep(2, pop.size.group.blue), 
+    rep(0, (rows*cols)-pop.size.group.red-pop.size.group.blue)
   ))
   grid <- matrix(initial.population, nrow=rows, ncol=cols)
 }
@@ -79,7 +79,7 @@ segregation <- function(grid){
 # current location. the output is N x 2, with N equal to the
 # number of unhappy agents and the columns representing the 
 # location (row, col) of the unhappy agent in the grid
-unhappy.agents <- function(grid, min.similarity){
+unhappy.agents.red <- function(grid, min.similarity){
   grid.copy <- grid
   for(row in 1:rows){
     for(col in 1:cols){
@@ -87,7 +87,23 @@ unhappy.agents <- function(grid, min.similarity){
       if(is.na(similarity.score)){
         grid.copy[row,col] <- NA
       } else {
-        grid.copy[row,col] <- similarity.score >= min.similarity
+        grid.copy[row,col] <- similarity.score >= min.similarity.red
+      }
+    }
+  }
+  return(which(grid.copy==FALSE, arr.ind = T))
+}
+
+# I need to figure out how to differentiate between unhappy red agents and unhappy blue agents
+unhappy.agents.blue <- function(grid, min.similarity){
+  grid.copy <- grid
+  for(row in 1:rows){
+    for(col in 1:cols){
+      similarity.score <- similarity.to.center(grid[max(0, row-1):min(rows,row+1), max(0,col-1):min(cols,col+1)], grid[row,col])
+      if(is.na(similarity.score)){
+        grid.copy[row,col] <- NA
+      } else {
+        grid.copy[row,col] <- similarity.score >= min.similarity.blue
       }
     }
   }
@@ -104,8 +120,8 @@ unhappy.agents <- function(grid, min.similarity){
 one.round <- function(grid, min.similarity.red, min.similarity.blue){
   # new.grid <- grid
   empty.spaces <- empty.locations(grid)
-  unhappy.red <- unhappy.agents(grid, min.similarity.red)
-  unhappy.blue <- unhappy.agents(grid, min.similarity.blue)
+  unhappy.red <- unhappy.agents.red(grid, min.similarity.red)
+  unhappy.blue <- unhappy.agents.blue(grid, min.similarity.blue)
   empty.spaces <- empty.spaces[sample(1:nrow(empty.spaces)), ]
   for(i in 1:nrow(empty.spaces)){
     if(i > nrow(unhappy.red) + nrow(unhappy.blue)) {
