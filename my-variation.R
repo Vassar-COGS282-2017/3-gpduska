@@ -83,12 +83,17 @@ unhappy.agents.red <- function(grid, min.similarity){
   grid.copy <- grid
   for(row in 1:rows){
     for(col in 1:cols){
+      
+      # only perform the following code if grid[row,col] is a red agent
+      if(grid[row,col] == 1){
       similarity.score <- similarity.to.center(grid[max(0, row-1):min(rows,row+1), max(0,col-1):min(cols,col+1)], grid[row,col])
       if(is.na(similarity.score)){
         grid.copy[row,col] <- NA
       } else {
         grid.copy[row,col] <- similarity.score >= min.similarity.red
       }
+      
+    } 
     }
   }
   return(which(grid.copy==FALSE, arr.ind = T))
@@ -99,11 +104,16 @@ unhappy.agents.blue <- function(grid, min.similarity){
   grid.copy <- grid
   for(row in 1:rows){
     for(col in 1:cols){
+      
+      #only perform the following code if grid[row,col] is a blue agent
+      if(grid[row,col] == 2){
       similarity.score <- similarity.to.center(grid[max(0, row-1):min(rows,row+1), max(0,col-1):min(cols,col+1)], grid[row,col])
       if(is.na(similarity.score)){
         grid.copy[row,col] <- NA
       } else {
         grid.copy[row,col] <- similarity.score >= min.similarity.blue
+      }
+      
       }
     }
   }
@@ -132,7 +142,7 @@ one.round <- function(grid, min.similarity.red, min.similarity.blue){
         grid[empty.spaces[i, 1], empty.spaces[i, 2]] <- grid[unhappy.blue[i, 1], unhappy.blue[i, 2]]
         grid[unhappy.blue[i, 1], unhappy.blue[i, 2]] <- 0
       }
-      if (nrow(unhappy.blue)) {
+      if (nrow(unhappy.blue) == 0) {
         grid[empty.spaces[i, 1], empty.spaces[i, 2]] <- grid[unhappy.red[i, 1], unhappy.red[i, 2]]
         grid[unhappy.red[i, 1], unhappy.red[i, 2]] <- 0
       }
