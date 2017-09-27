@@ -86,18 +86,20 @@ unhappy.agents.red <- function(grid, min.similarity){
       
       # only perform the following code if grid[row,col] is a red agent
       if(grid[row,col] == 1){
-      similarity.score <- similarity.to.center(grid[max(0, row-1):min(rows,row+1), max(0,col-1):min(cols,col+1)], grid[row,col])
-      if(is.na(similarity.score)){
-        grid.copy[row,col] <- NA
+        similarity.score <- similarity.to.center(grid[max(0, row-1):min(rows,row+1), max(0,col-1):min(cols,col+1)], grid[row,col])
+        if(is.na(similarity.score)){
+          grid.copy[row,col] <- NA
+        } else {
+          grid.copy[row,col] <- similarity.score >= min.similarity.red
+        }
       } else {
-        grid.copy[row,col] <- similarity.score >= min.similarity.red
+        grid.copy[row,col] <-NA
       }
-      
-    } 
     }
   }
   return(which(grid.copy==FALSE, arr.ind = T))
 }
+
 
 # I need to figure out how to differentiate between unhappy red agents and unhappy blue agents
 unhappy.agents.blue <- function(grid, min.similarity){
@@ -107,13 +109,14 @@ unhappy.agents.blue <- function(grid, min.similarity){
       
       #only perform the following code if grid[row,col] is a blue agent
       if(grid[row,col] == 2){
-      similarity.score <- similarity.to.center(grid[max(0, row-1):min(rows,row+1), max(0,col-1):min(cols,col+1)], grid[row,col])
-      if(is.na(similarity.score)){
-        grid.copy[row,col] <- NA
+        similarity.score <- similarity.to.center(grid[max(0, row-1):min(rows,row+1), max(0,col-1):min(cols,col+1)], grid[row,col])
+        if(is.na(similarity.score)){
+          grid.copy[row,col] <- NA
+        } else {
+          grid.copy[row,col] <- similarity.score >= min.similarity.blue
+        }
       } else {
-        grid.copy[row,col] <- similarity.score >= min.similarity.blue
-      }
-      
+        grid.copy[row,col] <- NA
       }
     }
   }
@@ -175,4 +178,3 @@ while(!done){
 layout(1:2) # change graphics device to have two plots
 visualize.grid(grid) # show resulting grid
 plot(seg.tracker) # plot segregation over time
-
