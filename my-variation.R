@@ -4,10 +4,10 @@
 # model parameters ####
 rows <- 50 
 cols <- 50
-proportion.group.red <- .4 # proportion of red agents
+proportion.group.red <- .5 # proportion of red agents
 empty <- .2 # proportion of grid that will be empty space
-min.similarity.red <- 3/8 # minimum proportion of neighbors that are the same type to not move
-min.similarity.blue <- 3/8 
+min.similarity.red <- 3/5 # minimum proportion of neighbors that are the same type to not move
+min.similarity.blue <- 3/6 
 
 # create.grid ####
 # generates a rows x column matrix and randomly places the initial population
@@ -17,7 +17,10 @@ min.similarity.blue <- 3/8
 create.grid <- function(rows, cols, proportion.group.red, empty){
   pop.size.group.red <- (rows*cols)*(1-empty)*proportion.group.red
   pop.size.group.blue <- (rows*cols)*(1-empty)*(1-proportion.group.red)
-  
+    
+  print(pop.size.group.red)
+  print(pop.size.group.blue)
+
   initial.population <- sample(c(
     rep(1, pop.size.group.red), 
     rep(2, pop.size.group.blue), 
@@ -40,6 +43,17 @@ visualize.grid <- function(grid){
 empty.locations <- function(grid){
   return(which(grid==0, arr.ind=T))
 }
+
+red.locations <- function(grid){
+  return(which(grid==1, arr.ind=T))
+}
+
+blue.locations <- function(grid){
+  return(which(grid==2, arr.ind=T))
+}
+
+
+
 
 # similarity.to.center ####
 # takes a grid and the center.val of that grid and returns
@@ -135,36 +149,24 @@ one.round <- function(grid, min.similarity.red, min.similarity.blue){
   empty.spaces <- empty.locations(grid)
   unhappy.red <- unhappy.agents.red(grid, min.similarity.red)
   unhappy.blue <- unhappy.agents.blue(grid, min.similarity.blue)
+  unhappy.all <- rbind(unhappy.red, unhappy.blue)
+  unhappy.all <- unhappy.all[sample(1:nrow(unhappy.all)), ]
   empty.spaces <- empty.spaces[sample(1:nrow(empty.spaces)), ]
   for(i in 1:nrow(empty.spaces)){
-    if(i > nrow(unhappy.red) + nrow(unhappy.blue)) {
+    if(i > nrow(unhappy.all)) {
       break;
     } else {
-      
-      if (nrow(unhappy.red) == 0) {
-        grid[empty.spaces[i, 1], empty.spaces[i, 2]] <- grid[unhappy.blue[i, 1], unhappy.blue[i, 2]]
-        grid[unhappy.blue[i, 1], unhappy.blue[i, 2]] <- 0
-      }
-      if (nrow(unhappy.blue) == 0) {
-        grid[empty.spaces[i, 1], empty.spaces[i, 2]] <- grid[unhappy.red[i, 1], unhappy.red[i, 2]]
-        grid[unhappy.red[i, 1], unhappy.red[i, 2]] <- 0
-      }
-      
-      if(i %% 2 == 1) {
-        grid[empty.spaces[i, 1], empty.spaces[i, 2]] <- grid[unhappy.red[i, 1], unhappy.red[i, 2]]
-        grid[unhappy.red[i, 1], unhappy.red[i, 2]] <- 0
-      } else {
-        grid[empty.spaces[i, 1], empty.spaces[i, 2]] <- grid[unhappy.blue[i, 1], unhappy.blue[i, 2]]
-        grid[unhappy.blue[i, 1], unhappy.blue[i, 2]] <- 0
-      }
+        grid[empty.spaces[i, 1], empty.spaces[i, 2]] <- grid[unhappy.all[i, 1], unhappy.all[i, 2]]
+        grid[unhappy.all[i, 1], unhappy.all[i, 2]] <- 0
     }
+  
   }
   return(grid)
 }
 
 # running the simulation ####
 done <- FALSE # a variable to keep track of whether the simulation is complete
-grid <- create.grid(rows, cols, proportion.group.1, empty)
+grid <- create.grid(rows, cols, proportion.group.red, empty)
 seg.tracker <- c(segregation(grid)) # keeping a running tally of the segregation scores for each round
 while(!done){
   new.grid <- one.round(grid, min.similarity.red, min.similarity.blue) # run one round of the simulation, and store output in new.grid
