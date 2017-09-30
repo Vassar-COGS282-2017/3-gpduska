@@ -6,8 +6,8 @@ rows <- 50
 cols <- 50
 proportion.group.red <- .5 # proportion of red agents
 empty <- .2 # proportion of grid that will be empty space
-min.similarity.red <- 3/5 # minimum proportion of neighbors that are the same type to not move
-min.similarity.blue <- 3/6 
+min.similarity.red <- 3/8 # minimum proportion of neighbors that are the same type to not move
+min.similarity.blue <- 3/8 
 
 # create.grid ####
 # generates a rows x column matrix and randomly places the initial population
