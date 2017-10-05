@@ -4,7 +4,7 @@
 # model parameters ####
 rows <- 50 
 cols <- 50
-proportion.group.red <- .5 # proportion of red agents
+proportion.group.red <- .4 # proportion of red agents
 empty <- .2 # proportion of grid that will be empty space
 min.similarity.red <- 3/8 # minimum proportion of neighbors that are the same type to not move
 min.similarity.blue <- 3/8 
@@ -150,8 +150,10 @@ one.round <- function(grid, min.similarity.red, min.similarity.blue){
   unhappy.red <- unhappy.agents.red(grid, min.similarity.red)
   unhappy.blue <- unhappy.agents.blue(grid, min.similarity.blue)
   unhappy.all <- rbind(unhappy.red, unhappy.blue)
-  unhappy.all <- unhappy.all[sample(1:nrow(unhappy.all)), ]
-  empty.spaces <- empty.spaces[sample(1:nrow(empty.spaces)), ]
+  if(nrow(unhappy.all) > 1){
+    unhappy.all <- unhappy.all[sample(1:nrow(unhappy.all)), ]
+    empty.spaces <- empty.spaces[sample(1:nrow(empty.spaces)), ]
+  }
   for(i in 1:nrow(empty.spaces)){
     if(i > nrow(unhappy.all)) {
       break;
